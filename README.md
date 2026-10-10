@@ -7,7 +7,7 @@ https://img.shields.io/badge/License-MIT-yellow
 
     A cute, expressive, AI-powered desktop companion robot that lives on your Windows desktop. Talk to it, and it talks back with natural voice, remembers facts about you, reads you the weather, monitors your system, and reacts with lifelike emotions.
 
-Created by Yasindu | Version 1.0
+Created by Yasindu Sasmitha | Version 1.0
 ✨ Features
 🎭 Lifelike Expressions
 
@@ -77,18 +77,6 @@ Created by Yasindu | Version 1.0
 
 🎥 Demo
 
-(Add a GIF of your robot here once you record it!)
-text
-
-┌──────────────────────────┐
-│                          │
-│      ┌────────────┐      │
-│      │  ◉     ◉   │      │  ← Robot eyes follow your cursor
-│      │            │      │
-│      │     ᴗ      │      │  ← Smiles when happy
-│      └────────────┘      │
-│                          │
-└──────────────────────────┘
 
 🚀 Getting Started
 Prerequisites
@@ -489,8 +477,8 @@ SOFTWARE.
 
 Yasindu — Project Creator
 
-    GitHub: @yourusername
+    GitHub: @Yasindu-Sasmitha
 
-    Email: your.email@example.com
+    Email: yasindusasmitha@gmail.com
 
 <p align="center"> <strong>⭐ If you enjoyed this project, give it a star! ⭐</strong><br> <em>Built with ❤️, Python, and a lot of curiosity.</em> </p>
