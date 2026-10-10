@@ -8,6 +8,7 @@ import tempfile
 import os
 import threading
 import queue
+import browser_actions   # voice-controlled web search / YouTube (browser_actions.py)
 import json
 import requests
 import re
@@ -214,6 +215,12 @@ def _speech_worker():
 
 threading.Thread(target=_speech_worker, daemon=True).start()
 
+def wait_until_quiet(timeout=15):
+    """Block (in a worker thread only!) until everything queued has been spoken."""
+    t0 = time.time()
+    while robot.is_speaking and time.time() - t0 < timeout:
+        time.sleep(0.05)
+
 # --- AI Brain: Gemini ---
 def get_gemini_response(prompt):
     global conversation_history, user_facts
@@ -339,6 +346,18 @@ def handle_user_text(user_text):
             speak_text(f"I remember! {facts}")
         else:
             speak_text("I don't know anything about you yet. Tell me your name or something about yourself!")
+        return
+
+    # --- Browser commands: "play X on YouTube", "search for X", "open YouTube" ---
+    action = browser_actions.parse_command(user_text)
+    if action:
+        robot.emotion = "THINKING"
+        print(f"🌐 Browser action: {action}")
+        message, url = browser_actions.plan(action)   # may look up a video (short network call)
+        speak_text(message)
+        wait_until_quiet()                            # let her finish the sentence, then open the browser
+        if not browser_actions.open_url(url):
+            speak_text("Hmm, I couldn't open the browser.")
         return
 
     robot.emotion = "THINKING"
