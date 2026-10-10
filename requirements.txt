@@ -1,0 +1,7 @@
+pygame
+SpeechRecognition
+pyaudio
+edge-tts
+asyncio
+requests
+python-dotenv>=1.0.0
