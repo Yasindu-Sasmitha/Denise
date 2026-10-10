@@ -1,179 +1,156 @@
-🤖 Denise - AI Desktop Companion Robot
+# 🤖 Denise - AI Desktop Companion Robot
 
-https://img.shields.io/badge/Python-3.13-blue
-https://img.shields.io/badge/Pygame-2.6.1-green
-https://img.shields.io/badge/AI-Google%20Gemini-orange
-https://img.shields.io/badge/License-MIT-yellow
+![Python](https://img.shields.io/badge/Python-3.13-blue)
+![Pygame](https://img.shields.io/badge/Pygame-2.6.1-green)
+![AI](https://img.shields.io/badge/AI-Google%20Gemini-orange)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-    A cute, expressive, AI-powered desktop companion robot that lives on your Windows desktop. Talk to it, and it talks back with natural voice, remembers facts about you, reads you the weather, monitors your system, and reacts with lifelike emotions.
+> A cute, expressive, AI-powered desktop companion robot that lives on your Windows desktop. Hold **Space** and talk to her: she answers in a natural voice, remembers facts about you, sets reminders, and can open the browser to search the web or **play a video on YouTube** when you ask. She blinks, looks around, yawns and falls asleep like a tiny living thing.
 
-Created by Yasindu | Version 1.0
-✨ Features
-🎭 Lifelike Expressions
+Created by **Yasindu Sasmitha** | Version 1.1
 
-    Blinking with randomized timing (every 3-8 seconds)
+---
 
-    Eye tracking that follows your cursor
+## 🆕 What's New in 1.1
 
-    Random look-around when you're idle (like Vector/Emo robots)
+- 🎤 **Real push-to-talk** - Denise now records *while* you hold Space and sends it when you let go (before, recording only started after you released the key).
+- 🗣️ **Speech queue** - replies, reminders and giggles are spoken one after another. Nothing talks over anything else, and nothing important gets dropped.
+- 🎲 **Natural timing** - blinks, look-arounds and yawns now really happen at random moments instead of at an almost fixed rhythm.
+- 🌐 **Browser & YouTube voice commands** - "play lofi on YouTube", "search for python tutorials", "open YouTube".
+- 📚 **Docs match the code** - features that are not built yet (weather, system monitor, transparent window) moved to the **Roadmap**.
 
-    Sleep mode after 60 seconds of inactivity
+---
 
-    Yawning when bored
+## ✨ Features
 
-    Emotional reactions – Happy, Surprised, Bored, Sleepy, Thinking, Clicking
+### 🎭 Lifelike Expressions
+- Blinking at random moments (every 3-8 seconds)
+- Eye tracking that follows your cursor
+- Random look-around when you're idle (like Vector / Emo robots)
+- Gets bored after 30 seconds, yawns every 45-90 seconds, and falls asleep after 60 seconds of inactivity
+- Wakes up when you click or press a key
+- Emotional reactions: Happy, Surprised, Bored, Sleepy, Thinking, Listening, Clicked
 
-🗣️ Natural Voice Interaction
+### 🗣️ Natural Voice Interaction
+- **Hold Space to talk**, release to send
+- Speech-to-text with Google's free recognition API (via `SpeechRecognition`)
+- Natural voice output with Microsoft Edge-TTS (no robotic monotone!)
+- Mouth animation while she speaks
+- A speech queue, so lines never overlap or get lost
 
-    Push-to-talk with the Spacebar
+### 🧠 AI Brain (Google Gemini)
+- Powered by Google Gemini (currently `gemini-3.1-flash-lite`, easy to change)
+- Short-term memory: the last few exchanges are sent along with each message (kept in RAM, resets when she restarts)
+- Long-term memory: facts about you are saved in `user_facts.json`
+- Custom personality: playful, curious, empathetic companion
 
-    Speech-to-text using Google's free recognition API
+### 🌐 Browser & YouTube Control
+- **Play a video:** "Play Despacito on YouTube" or just "play lofi beats"
+- **Search YouTube:** "Search YouTube for guitar lessons"
+- **Search the web:** "Search for python tutorials" or "Google how to tie a tie"
+- **Open a site:** "Open YouTube" (also Google, Gmail, GitHub, the browser)
+- She tells you what she's doing first, *then* opens the browser
 
-    Natural voice output via Microsoft Edge-TTS (no robotic monotone!)
+### ⏰ Reminders
+- Voice command: "Remind me to [task] in [X] minutes"
+- She speaks the reminder out loud when the time comes, even if she is in the middle of a sentence
 
-    Mouth animation synced to speech
+### 🖱️ Desktop Integration
+- Borderless window you can drag anywhere (left-click and drag)
+- Right-click reaction: the robot giggles when you click her
 
-🧠 AI Brain (Google Gemini)
+---
 
-    Powered by Gemini 2.0/3.1 Flash models
+## 🎥 Demo
 
-    Contextual conversations – remembers the last 10 exchanges
+_Demo GIF coming soon!_
 
-    Long-term memory – saves facts about you in user_facts.json
+---
 
-    Custom personality – playful, curious, empathetic companion
+## 🚀 Getting Started
 
-🌤️ Live Weather
+### Prerequisites
 
-    Real-time weather via OpenWeatherMap API
+- **Windows 10/11** (uses Windows-specific APIs for dragging the window)
+- **Python 3.10+** (tested on 3.13.2)
+- A **microphone** for voice input
+- An **internet connection** (Gemini, Edge-TTS, speech recognition and YouTube all need it)
 
-    Ask "What's the weather?" or press W
+### 1. Clone the Project
 
-    Supports any city – "Weather in Tokyo"
+```bash
+git clone https://github.com/Yasindu-Sasmitha/Denise.git
+cd Denise
+```
 
-🖥️ System Monitoring
+### 2. Create a Virtual Environment
 
-    Real-time CPU, RAM, and disk usage via psutil
-
-    Warns you when CPU is above 80%
-
-    Press M to check system status
-
-⏰ Reminders
-
-    Voice command: "Remind me to [task] in [X] minutes"
-
-    Robot speaks the reminder out loud when the time comes
-
-🖱️ Desktop Integration
-
-    Draggable window – left-click and drag anywhere
-
-    Transparent background – floats over your wallpaper
-
-    Borderless, always-on-top window
-
-    Right-click reaction – the robot giggles when you click it
-
-🎥 Demo
-
-(Add a GIF of your robot here once you record it!)
-text
-
-┌──────────────────────────┐
-│                          │
-│      ┌────────────┐      │
-│      │  ◉     ◉   │      │  ← Robot eyes follow your cursor
-│      │            │      │
-│      │     ᴗ      │      │  ← Smiles when happy
-│      └────────────┘      │
-│                          │
-└──────────────────────────┘
-
-🚀 Getting Started
-Prerequisites
-
-    Windows 10/11 (uses Windows-specific APIs for dragging)
-
-    Python 3.10+ (tested on 3.13.2)
-
-    A microphone (for voice input)
-
-    Internet connection (for Gemini, Edge-TTS, and weather)
-
-1. Clone or Download the Project
-bash
-
-# Create the project folder
-mkdir my_desktop_robot
-cd my_desktop_robot
-
-2. Create a Virtual Environment
-bash
-
+```bash
 python -m venv venv
 venv\Scripts\activate
+```
 
-3. Install Dependencies
+### 3. Install Dependencies
 
-Create a requirements.txt file with:
-txt
-
-pygame
-SpeechRecognition
-edge-tts
-requests
-google-genai
-python-dotenv
-psutil
-pyaudio
-
-Then install:
-bash
-
+```bash
 pip install -r requirements.txt
+```
 
-    ⚠️ If PyAudio fails to install, run:
-    bash
+The requirements are:
 
-    pip install pipwin
-    pipwin install pyaudio
+| Package | Used for |
+|---|---|
+| `pygame` | The face, window and audio playback |
+| `SpeechRecognition` + `pyaudio` | Microphone input and speech-to-text |
+| `edge-tts` | Denise's voice |
+| `google-genai` | Gemini AI brain |
+| `requests` | YouTube video lookup |
+| `python-dotenv` | Loading your `.env` file |
+| `yt-dlp` *(optional)* | Playing YouTube videos without an API key |
 
-4. Get API Keys
-🔑 Google Gemini API Key (Required for AI)
+> ⚠️ If PyAudio fails to install, try:
+> ```bash
+> pip install pipwin
+> pipwin install pyaudio
+> ```
 
-    Go to Google AI Studio
+### 4. Get API Keys
 
-    Click "Get API Key" → "Create API Key"
+#### 🔑 Google Gemini API Key (Required)
 
-    Copy the key and keep it safe.
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Click **Get API Key** → **Create API Key**
+3. Copy the key and keep it safe.
 
-🔑 OpenWeatherMap API Key (For weather)
+#### 🔑 YouTube Data API Key (Optional)
 
-    Sign up at OpenWeatherMap
+Only needed so that "play X on YouTube" can open the top video directly. Without it, Denise tries `yt-dlp` (if installed), and otherwise opens the YouTube **results page** for you to click.
 
-    Copy your free API key.
+1. Open the [Google Cloud Console](https://console.cloud.google.com/) and create or pick a project
+2. Enable **YouTube Data API v3**
+3. Go to **Credentials** → **Create credentials** → **API key**
+4. (Recommended) restrict the key to the YouTube Data API
 
-5. Configure Environment Variables
+### 5. Configure Environment Variables
 
-Create a .env file in the project root:
-env
+Copy the template and fill in your keys:
 
+```bash
+copy .env.example .env
+```
+
+```env
 GEMINI_API_KEY=your_gemini_api_key_here
-OPENWEATHER_API_KEY=your_openweather_api_key_here
+YOUTUBE_API_KEY=your_youtube_api_key_here   # optional
+```
 
-Then update the code to use them (see main.py for reference):
-python
+> 🔒 `.env` is listed in `.gitignore`, so your keys are never committed.
 
-from dotenv import load_dotenv
-load_dotenv()
-API_KEY = os.getenv("GEMINI_API_KEY")
+### 6. Assets
 
-6. Prepare Your Assets
+The `assets/` folder is included in the repo. If you want to draw your own face, keep the same file names (transparent PNGs with matching dimensions):
 
-Create an assets/ folder inside your project and add these PNG files (transparent background, matching dimensions):
-text
-
+```text
 assets/
 ├── face_base.png          # Dark rounded face background
 ├── eyes_idle.png          # Default blue eyes
@@ -187,310 +164,350 @@ assets/
 ├── mouth_talk_1.png       # Talking mouth frame 1
 ├── mouth_talk_2.png       # Talking mouth frame 2
 ├── mouth_yawn.png         # Yawning mouth
-└── mouth_frown.png        # Bored frown (optional)
+└── mouth_frown.png        # Bored frown
+```
 
-7. Run the Robot
-bash
+### 7. Run the Robot
 
+```bash
 python main.py
+```
 
-Your robot should appear on screen! 🎉
-🎮 Controls
-Keyboard
-Key	Action
-SPACE (hold)	Record your voice – release to process
-W	Get weather for the default city
-M	Get system status (CPU, RAM, disk)
-R	Ask what the robot remembers about you
-H	Trigger happy expression
-S	Trigger surprised expression
-C	Trigger click reaction
-ESC	Close the robot
-Mouse
-Button	Action
-Left-click + drag	Move the robot window
-Right-click	Click reaction (robot says "Hee heee!")
-Voice Commands
+Run it **from the project folder** (the assets and the memory file are found relative to where you start it). Your robot should appear on screen! 🎉
 
-Hold SPACE and say:
-Command	What it does
-"What's the weather?"	Reports current weather
-"Weather in London"	Weather for a specific city
-"How is my system doing?"	Reports CPU, RAM, disk
-"Remind me to call John in 5 minutes"	Sets a reminder
-"What do you remember about me?"	Lists saved facts
-Anything else	Chats via Gemini AI
-🗂️ Project Structure
-text
+Want to check your microphone first? Run `python mic_test.py`.
 
-my_desktop_robot/
+---
+
+## 🎮 Controls
+
+### Keyboard
+
+| Key | Action |
+|---|---|
+| `SPACE` (hold) | Record your voice - release to send |
+| `R` | Ask what the robot remembers about you |
+| `H` | Trigger happy expression |
+| `S` | Trigger surprised expression |
+| `C` | Trigger click reaction |
+| `ESC` | Close the robot |
+
+### Mouse
+
+| Button | Action |
+|---|---|
+| Left-click + drag | Move the robot window |
+| Right-click | Click reaction (robot says "Hee heee!") |
+
+---
+
+## 🗣️ Voice Commands
+
+Hold **SPACE**, say one of these, then release:
+
+| Say | What happens |
+|---|---|
+| "Play Despacito on YouTube" / "Play lofi beats" | Finds the top video and opens it |
+| "Search YouTube for guitar lessons" | Opens the YouTube results |
+| "Search for python tutorials" / "Google how to tie a tie" | Opens a Google search |
+| "Open YouTube" / "Open Google" / "Open Gmail" / "Open GitHub" / "Open the browser" | Opens that site |
+| "Remind me to call John in 5 minutes" | Sets a reminder (minutes only) |
+| "What do you remember about me?" | Recites the facts she has saved |
+| Anything else | Chats with you via Gemini |
+
+💡 **Tips**
+- Polite lead-ins are fine: "Hey Denise, can you play some jazz please?" works. (This is just ignored politeness, **not** a wake word. You still hold Space.)
+- Normal conversation is left alone: "let's play a game" or "search your memory" go to Gemini, not the browser.
+- Tell her facts about yourself ("my name is ...", "my favourite colour is ...") and she'll save them to `user_facts.json`.
+
+---
+
+## 🗂️ Project Structure
+
+```text
+Denise/
 │
-├── main.py                 # The main application
+├── main.py                 # The main application (face, voice, brain)
+├── browser_actions.py      # Voice-controlled browser / YouTube commands
+├── mic_test.py             # Quick microphone check
 ├── requirements.txt        # Python dependencies
-├── .env                    # API keys (DO NOT commit!)
-├── user_facts.json         # Auto-generated memory file
+├── .env.example            # Template for your API keys
+├── .env                    # Your API keys (DO NOT commit!)
+├── user_facts.json         # Auto-generated memory file (git-ignored)
+├── LICENSE
 ├── README.md               # This file
 │
-└── assets/                 # Custom PNG images
-    ├── face_base.png
-    ├── eyes_idle.png
-    ├── eyes_listening.png
-    ├── eyes_closed.png
-    ├── eyes_think.png
-    ├── eyes_happy.png
-    ├── eyes_surprised.png
-    ├── eyes_sleep.png
-    ├── eyes_click.png
-    ├── mouth_talk_1.png
-    ├── mouth_talk_2.png
-    ├── mouth_yawn.png
-    └── mouth_frown.png
+└── assets/                 # PNG images for the face
+    └── (13 files, see the Assets section)
+```
 
-🧠 How It Works
-Architecture Overview
-text
+---
 
+## 🧠 How It Works
+
+### Face Layers
+
+```text
 ┌─────────────────────────────────────────────────────┐
 │                    Pygame Window                    │
 │  ┌───────────────┐                                  │
 │  │  Base Face    │  ← face_base.png                 │
 │  ├───────────────┤                                  │
-│  │  Eyes Layer   │  ← Dynamic based on state        │
+│  │  Eyes Layer   │  ← Changes with her emotion      │
 │  ├───────────────┤                                  │
-│  │  Mouth Layer  │  ← Only when needed              │
+│  │  Mouth Layer  │  ← Only when talking / yawning   │
 │  └───────────────┘                                  │
 └─────────────────────────────────────────────────────┘
-            ▲                    │
-            │                    ▼
-    ┌───────┴────────┐   ┌──────────────┐
-    │ Emotion State  │   │ RobotState   │
-    │  Machine       │◄──┤ (Python)     │
-    └───────┬────────┘   └──────────────┘
-            │
-    ┌───────┴────────┬─────────────┬─────────────┐
-    │                │             │             │
-    ▼                ▼             ▼             ▼
-┌────────┐    ┌────────────┐  ┌────────┐  ┌──────────┐
-│ Gemini │    │Edge-TTS    │  │Weather │  │ psutil   │
-│  AI    │    │(Voice Out) │  │  API   │  │(System)  │
-└────────┘    └────────────┘  └────────┘  └──────────┘
+```
 
-Emotion State Machine
+### From your voice to her answer
 
-The robot cycles through these states based on context:
+```mermaid
+flowchart TD
+    A["🎤 Hold SPACE and speak"] --> B["Release SPACE"]
+    B --> C["Google speech-to-text"]
+    C --> D{"handle_user_text()"}
+    D -->|"remind me to ... in N minutes"| E["⏰ Set reminder"]
+    D -->|"what do you remember"| F["🧠 Recite saved facts"]
+    D -->|"play / search / open"| G["🌐 browser_actions.py"]
+    D -->|"anything else"| H["✨ Gemini"]
+    E --> Q["Speech queue"]
+    F --> Q
+    G --> Q
+    H --> Q
+    G -.->|"after she finishes speaking"| BR["Your browser"]
+    Q --> T["Edge-TTS → speakers + mouth animation"]
+```
 
-    IDLE → Default state (blue eyes)
+Denise runs three things side by side so the face never freezes:
 
-    LISTENING → Holding Spacebar (yellow eyes)
+- **Main thread** - draws the face, blinking, eye tracking, idle behaviours, and checks reminders
+- **Push-to-talk thread** - records while Space is held, transcribes, and routes the command
+- **Speech thread** - takes lines from the speech queue and speaks them one at a time (cosmetic lines like the giggle are skipped if she's already busy; replies and reminders are never skipped)
 
-    THINKING → Waiting for AI response (looking-up eyes)
+### Emotion State Machine
 
-    SPEAKING → Playing TTS audio (animated mouth)
+| State | Trigger | Look |
+|---|---|---|
+| IDLE | Default | Blue eyes |
+| LISTENING | Mic is recording (Space held) | Yellow eyes |
+| THINKING | Waiting for Gemini / a lookup | Looking-up eyes |
+| SPEAKING | Playing her voice | Animated mouth |
+| HAPPY | `H` key | Sparkle eyes |
+| SURPRISED | `S` key | Wide eyes |
+| BORED | 30 s without interaction | Frown mouth |
+| YAWN | Every 45-90 s while idle | Open mouth |
+| SLEEPING | 60 s of inactivity | Sleepy eyes |
+| CLICKED | Right-click / `C` | Special eyes |
 
-    HAPPY → After good interaction (sparkle eyes)
+---
 
-    SURPRISED → Unexpected events (wide eyes)
+## ⚙️ Customization
 
-    BORED → 30s+ no interaction (frown mouth)
+### 1. Change the Robot's Name or Personality
 
-    YAWNING → 45-90s idle (open mouth)
+In `get_gemini_response()`, edit the `system_prompt`:
 
-    SLEEPING → 60s+ idle (closed eyes)
+```python
+system_prompt = f"""You are YOUR_NAME, a playful, curious desktop robot companion..."""
+```
 
-    CLICKED → On right-click (special eyes)
+You can change the tone (playful, serious, sarcastic), response length, favourite topics and behaviour rules.
 
-⚙️ Customization
-1. Change the Robot's Name
+### 2. Change the Voice
 
-In get_gemini_response(), update the system prompt:
-python
+In `_speech_worker()`, change the voice code:
 
-system_prompt = """You are YOUR_NAME, a playful desktop robot..."""
-
-2. Change the Voice
-
-In speak_text(), change the voice code:
-python
-
+```python
 communicate = edge_tts.Communicate(text, "en-GB-RyanNeural", pitch="+25Hz")
+```
 
-Popular voices:
-Voice Code	Description
-en-US-JennyNeural	Natural female (US)
-en-US-GuyNeural	Natural male (US)
-en-GB-SoniaNeural	Friendly female (British)
-en-GB-RyanNeural	Calm male (British)
-en-AU-NatashaNeural	Cheerful female (Australian)
-en-IN-NeerjaNeural	Warm female (Indian)
+| Voice Code | Description |
+|---|---|
+| `en-US-JennyNeural` | Natural female (US) |
+| `en-US-GuyNeural` | Natural male (US) |
+| `en-GB-SoniaNeural` | Friendly female (British) |
+| `en-GB-RyanNeural` | Calm male (British) |
+| `en-AU-NatashaNeural` | Cheerful female (Australian) - **current default** |
+| `en-IN-NeerjaNeural` | Warm female (Indian) |
 
-Run edge-tts --list-voices in the terminal to see all options.
-3. Adjust Sleep Time
+Run `edge-tts --list-voices` in the terminal to see all options.
 
-In update_idle_behaviors():
-python
+### 3. Change the Gemini Model
 
+In `get_gemini_response()`:
+
+```python
+model='gemini-3.1-flash-lite',
+```
+
+### 4. Adjust Sleep Time
+
+In `update_idle_behaviors()`:
+
+```python
 if now - robot.sleep_timer > 60:  # Change 60 to your desired seconds
+```
 
-4. Change the Default City
-python
+### 5. Adjust Blink / Look / Yawn Timing
 
-DEFAULT_CITY = "Colombo"  # Change to your city
+The random delays are set where each event is scheduled (`RobotState.__init__`, `update_blink()` and `update_idle_behaviors()`):
 
-5. Tune the Personality
+```python
+robot.next_blink = now + random.uniform(3, 8)    # seconds between blinks
+robot.next_yawn  = now + random.uniform(45, 90)  # seconds between yawns
+```
 
-Edit the system_prompt in get_gemini_response() to change:
+### 6. Tune Push-to-Talk
 
-    Tone (playful, serious, sarcastic)
+Near the top of the microphone section in `main.py`:
 
-    Response length
+```python
+MAX_RECORD_SECONDS = 15   # longest single recording
+MIN_RECORD_SECONDS = 0.4  # shorter taps are ignored
+```
 
-    Topics the robot loves
+### 7. Add Websites She Can Open
 
-    Behavioral rules
+In `browser_actions.py`, add the site to `SITES` and `SITE_NAMES`, and add its name to the `_OPEN_SITE` pattern:
 
-6. Adjust Eye/Mouth Movement
+```python
+SITES = {"youtube": "https://www.youtube.com", "reddit": "https://www.reddit.com", ...}
+```
 
-In update_cursor_tracking():
-python
+### 8. Adjust Eye Movement
 
+In `update_cursor_tracking()`:
+
+```python
 robot.eye_target_x = max(-35, min(35, dx * 0.2))  # Adjust range and sensitivity
 robot.eye_current_x += (robot.eye_target_x - robot.eye_current_x) * 0.06  # Adjust speed
+```
 
-🐛 Troubleshooting
-Robot says "Could not understand audio"
+---
 
-    Speak louder and closer to the mic
+## 🐛 Troubleshooting
 
-    Check Windows microphone permissions: Settings → Privacy → Microphone
+### Console says "Too short - hold Space while you talk"
+Recordings under 0.4 seconds are ignored. Press and **keep holding** Space while you speak, then release.
 
-    The recognize_google function requires internet
+### Robot says "Could not understand audio"
+- Speak louder and closer to the mic
+- Check Windows microphone permissions: Settings → Privacy → Microphone
+- Speech recognition needs an internet connection
+- Test your mic with `python mic_test.py`
 
-PyAudio installation fails
-bash
-
+### PyAudio installation fails
+```bash
 pip install pipwin
 pipwin install pyaudio
+```
 
-Gemini returns errors
+### Gemini returns errors
+- Verify your `.env` has the correct `GEMINI_API_KEY`
+- Check your internet connection
+- Check that your API key hasn't been revoked in AI Studio
+- If the error mentions the model, change the model name in `get_gemini_response()`
 
-    Verify your .env has the correct GEMINI_API_KEY
+### She opens YouTube search results instead of playing a video
+She couldn't look up a video. Either add a `YOUTUBE_API_KEY` to `.env`, or run `pip install yt-dlp`.
 
-    Check your internet connection
+### `yt-dlp` stopped working
+YouTube changes often. Update it with `pip install -U yt-dlp`.
 
-    Check that your API key hasn't been revoked in AI Studio
+### The video opens but doesn't start playing
+Some browsers block autoplay with sound. Click the video once.
 
-Weather says "Couldn't get weather"
+### No voice / "TTS Error" in the console
+Edge-TTS needs an internet connection. Check your connection and speakers.
 
-    Check your OPENWEATHER_API_KEY is valid
+### "Missing assets!" on the face
+Run `python main.py` from the project folder and make sure all 13 PNGs are in `assets/`.
 
-    Try a different city name
+### Robot is not sleeping
+- Make sure nothing keeps resetting `sleep_timer` (see the BORED/YAWN exclusion in the main loop)
+- Lower the sleep threshold for testing (set it to 10 seconds)
 
-    Free OpenWeatherMap keys take ~10 minutes to activate after signup
+---
 
-Robot is not sleeping
+## 🔒 Privacy
 
-    Make sure nothing keeps resetting sleep_timer (see BORED/YAWN exclusion in main loop)
+- 🎤 Your voice recording is sent to **Google's speech recognition** service to be turned into text
+- 💬 What you say, plus the facts she has saved about you, is sent to **Google Gemini** to write her answers
+- 🌐 Browser commands only open addresses built from fixed templates, with your words safely encoded, so a misheard phrase can't send her to a random site
+- 🔑 API keys live in `.env` (never committed) and are never printed in error messages
+- 🧠 `user_facts.json` stays on your computer and is git-ignored
 
-    Lower the sleep threshold for testing (set to 10 seconds)
+---
 
-Window keeps appearing on top
+## 🛣️ Roadmap
 
-    This is intentional (always-on-top). To disable, look for pygame.NOFRAME in the window setup and remove | pygame.SRCALPHA (not recommended).
+**Done**
+- [x] True hold-to-talk push-to-talk
+- [x] Speech queue (no overlapping or dropped speech)
+- [x] Natural random blink / look / yawn timing
+- [x] Web search, YouTube search and "play on YouTube" by voice
 
-🛣️ Roadmap
+**Planned**
+- [ ] Transparent background and always-on-top window (floats over your wallpaper)
+- [ ] Live weather by voice ("What's the weather in Tokyo?")
+- [ ] System monitoring (CPU, RAM, disk) with a high-CPU warning
+- [ ] Wake word ("Hey Denise" instead of holding Space)
+- [ ] Media controls by voice (pause, next, volume)
+- [ ] Gemini picks her emotion for each reply (eyes react to what she says)
+- [ ] Reminders that survive restarts, plus "at 3 PM" and hours
+- [ ] Persistent chat history and a "forget ..." command
+- [ ] Offline voice fallback when there is no internet
+- [ ] Click-through mode (interact with apps behind the robot)
+- [ ] System tray icon with mute / quit
+- [ ] Document reader (PDF, DOCX, TXT → AI summaries)
+- [ ] Vision mode (webcam input for Gemini multimodal)
+- [ ] Multi-language support (including Sinhala)
+- [ ] Custom sprite themes (change robot appearance)
+- [ ] Daily greetings based on time of day
+- [ ] A physical desk-robot version
 
-Ideas for future versions:
+### Known Limitations
+- Windows only (window dragging uses Windows APIs)
+- The window is borderless but **not** transparent or always-on-top yet
+- Reminders work in minutes only and are lost if you close her
+- Chat history is kept in memory only; only the saved facts survive a restart
+- She is started from the project folder (assets and memory file are found relative to it)
 
-    □
+---
 
-    Wake word detection ("Hey Denys" instead of Spacebar)
-    □
-
-    Click-through mode (interact with apps behind the robot)
-    □
-
-    Document reader (PDF, DOCX, TXT → AI summaries)
-    □
-
-    Web search (real-time info via SerpAPI)
-    □
-
-    Vision mode (webcam input for Gemini multimodal)
-    □
-
-    Voice emotion detection (adjust responses to your mood)
-    □
-
-    Multi-language support
-    □
-
-    Custom sprite themes (change robot appearance)
-    □
-
-    Scheduled reminders ("Remind me at 3 PM to call John")
-    □
-
-    Daily greetings based on time of day
-
-🤝 Contributing
+## 🤝 Contributing
 
 Contributions, bug reports, and feature requests are welcome! Feel free to:
 
-    Fork this project
+1. Fork this project
+2. Create a feature branch
+3. Submit a pull request
 
-    Create a feature branch
+---
 
-    Submit a pull request
+## 📜 License
 
-📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License – see below for details.
-text
+---
 
-MIT License
+## 🙏 Credits & Acknowledgments
 
-Copyright (c) 2026 Yasindu
+- **Inspiration:** Anki Vector, Emo (Living AI), and Cozmo
+- **AI:** Google Gemini
+- **Voice:** Microsoft Edge TTS
+- **Graphics Engine:** Pygame
+- **Speech Recognition:** SpeechRecognition
+- **YouTube lookup (optional):** YouTube Data API v3 and yt-dlp
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## 📞 Contact
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+**Yasindu** - Project Creator
 
-🙏 Credits & Acknowledgments
-
-    Inspiration: Anki Vector, Emo (Living AI), and Cozmo
-
-    AI: Google Gemini
-
-    Voice: Microsoft Edge TTS
-
-    Graphics Engine: Pygame
-
-    Speech Recognition: SpeechRecognition
-
-    Weather: OpenWeatherMap
-
-    System Monitoring: psutil
-
-📞 Contact
-
-Yasindu — Project Creator
-
-    GitHub: @yourusername
-
-    Email: your.email@example.com
+- GitHub: [@Yasindu-Sasmitha](https://github.com/Yasindu-Sasmitha)
+- Email: yasindusasmitha@gmail.com
 
 <p align="center"> <strong>⭐ If you enjoyed this project, give it a star! ⭐</strong><br> <em>Built with ❤️, Python, and a lot of curiosity.</em> </p>
