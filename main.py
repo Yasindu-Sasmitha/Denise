@@ -57,7 +57,11 @@ class RobotState:
         self.last_activity = time.time()
         self.sleepy_mode = False
         self.look_timer = time.time()
-        self.yawn_timer = time.time() + random.uniform(30, 60)
+        self.yawn_timer = time.time()
+        # --- Next-event times: each random delay is rolled ONCE, then stored ---
+        self.next_blink = time.time() + random.uniform(3, 8)
+        self.next_look = time.time() + random.uniform(3, 8)
+        self.next_yawn = time.time() + random.uniform(45, 90)
         self.last_mouse_move_time = time.time()
         self.prev_mouse_x = 0
         self.prev_mouse_y = 0
@@ -127,16 +131,18 @@ def load_assets():
 load_assets()
 
 # --- Wake Up Function ---
-def wake_up():
-    """Wake the robot from sleep mode."""
+def wake_up(speak=True):
+    """Wake the robot from sleep mode.
+    speak=False is used when Space wakes her, so the greeting doesn't talk over the mic."""
     if robot.is_asleep:
         robot.is_asleep = False
         robot.sleepy_mode = False
         robot.sleep_timer = time.time()
         robot.last_activity = time.time()
+        robot.next_yawn = time.time() + random.uniform(45, 90)  # no instant yawn after waking
         print("Robot woke up!")
-        # Optionally speak when waking up
-        speak_text("Oh! Hey there! I was sleeping.")
+        if speak:
+            speak_text("Oh! Hey there! I was sleeping.")
 
 # --- Voice Engine ---
 def speak_text(text):
@@ -272,57 +278,75 @@ You are Denise. Make every interaction feel like talking to a real friend."""
         print(f"🤖 Gemini Error: {e}")
         return None
     
-# --- Microphone ---
-def listen_and_process():
-    if robot.is_listening:
+# --- Microphone (true hold-to-talk) ---
+ptt_held = threading.Event()   # set while Space is physically held down
+MAX_RECORD_SECONDS = 15        # safety net, e.g. if the window loses focus and KEYUP never arrives
+MIN_RECORD_SECONDS = 0.4       # ignore accidental taps
+
+def handle_user_text(user_text):
+    """Everything that happens AFTER speech has been transcribed."""
+    print(f"👤 You said: {user_text}")
+
+    # --- Check for reminder commands ---
+    reminder_match = re.search(r'remind me to (.+?) in (\d+) minutes?\b', user_text.lower())
+    if reminder_match:
+        task = reminder_match.group(1)
+        minutes = int(reminder_match.group(2))
+        reminder_time = time.time() + (minutes * 60)
+        reminders.append({"time": reminder_time, "message": task})
+        speak_text(f"Okay! I'll remind you to {task} in {minutes} minutes.")
+        print(f"⏰ Reminder set: {task} in {minutes} minutes")
+        return  # Skip AI processing for reminder commands
+
+    # --- Check if user is asking what you remember ---
+    if "what do you remember" in user_text.lower() or "what do you know about me" in user_text.lower():
+        if user_facts:
+            facts = ", ".join([f"{k}: {v}" for k, v in user_facts.items()])
+            speak_text(f"I remember! {facts}")
+        else:
+            speak_text("I don't know anything about you yet. Tell me your name or something about yourself!")
         return
+
+    robot.emotion = "THINKING"
+    print("🧠 Asking Gemini...")
+    reply = get_gemini_response(user_text)
+    if reply is None:
+        reply = f"You said: {user_text}. I'm your cute robot!"
+    speak_text(reply)
+
+def push_to_talk_worker():
+    """Starts on Space KEYDOWN: records while Space is held, stops on KEYUP, then processes.
+    The main loop has already set robot.is_listening = True before starting this thread."""
     try:
         import speech_recognition as sr
     except ImportError:
         print("❌ SpeechRecognition not installed.")
+        robot.is_listening = False
+        robot.emotion = "IDLE"
         return
-    robot.is_listening = True
-    robot.emotion = "LISTENING"
-    recognizer = sr.Recognizer()
+
     try:
         with sr.Microphone() as source:
-            print("🎤 Listening...")
-            audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
-        print("📝 Transcribing...")
-        user_text = recognizer.recognize_google(audio)
-                # --- Check for reminder commands ---
-        
-        reminder_match = re.search(r'remind me to (.+?) in (\d+) minutes?\b', user_text.lower())
-        if reminder_match:
-            task = reminder_match.group(1)
-            minutes = int(reminder_match.group(2))
-            reminder_time = time.time() + (minutes * 60)
-            reminders.append({"time": reminder_time, "message": task})
-            speak_text(f"Okay! I'll remind you to {task} in {minutes} minutes.")
-            print(f"⏰ Reminder set: {task} in {minutes} minutes")
-            return  # Skip AI processing for reminder commands
-        
-        # --- Check if user is asking what you remember ---
-        if "what do you remember" in user_text.lower() or "what do you know about me" in user_text.lower():
-            if user_facts:
-                facts = ", ".join([f"{k}: {v}" for k, v in user_facts.items()])
-                speak_text(f"I remember! {facts}")
-            else:
-                speak_text("I don't know anything about you yet. Tell me your name or something about yourself!")
+            robot.emotion = "LISTENING"   # eyes turn "listening" only once the mic is really open
+            print("🎤 Recording... (release Space to send)")
+            frames = []
+            started = time.time()
+            while ptt_held.is_set() and time.time() - started < MAX_RECORD_SECONDS:
+                frames.append(source.stream.read(source.CHUNK))
+            sample_rate, sample_width = source.SAMPLE_RATE, source.SAMPLE_WIDTH
+
+        raw = b"".join(frames)
+        if len(raw) / (sample_rate * sample_width) < MIN_RECORD_SECONDS:
+            print("⏱️ Too short - hold Space while you talk.")
+            robot.emotion = "IDLE"
+            robot.is_listening = False
             return
 
-
-        print(f"👤 You said: {user_text}")
         robot.emotion = "THINKING"
-        print("🧠 Asking Gemini...")
-        reply = get_gemini_response(user_text)
-        if reply is None:
-            reply = f"You said: {user_text}. I'm your cute robot!"
-        speak_text(reply)
-    except sr.WaitTimeoutError:
-        print("⏱️ No speech detected.")
-        robot.emotion = "IDLE"
-        robot.is_listening = False
+        print("📝 Transcribing...")
+        audio = sr.AudioData(raw, sample_rate, sample_width)
+        user_text = sr.Recognizer().recognize_google(audio)
+        handle_user_text(user_text)   # speak_text() resets is_listening/emotion when done
     except sr.UnknownValueError:
         print("🤷 Could not understand audio.")
         robot.emotion = "IDLE"
@@ -394,7 +418,7 @@ def draw_face(screen, robot):
 def update_blink():
     now = time.time()
     if robot.blink_state == "OPEN":
-        if now - robot.blink_timer > random.uniform(3, 8):
+        if now >= robot.next_blink:
             robot.blink_state = "CLOSING"
             robot.blink_timer = now
     elif robot.blink_state == "CLOSING":
@@ -409,6 +433,7 @@ def update_blink():
         if now - robot.blink_timer > 0.05:
             robot.blink_state = "OPEN"
             robot.blink_timer = now
+            robot.next_blink = now + random.uniform(3, 8)  # schedule the next blink once
 
 def update_cursor_tracking():
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -440,17 +465,19 @@ def update_idle_behaviors():
     
     # ---- RANDOM LOOK AROUND ----
     if time_since_mouse_move > 6.0:
-        if now - robot.look_timer > random.uniform(3, 8):
+        if now >= robot.next_look:
             new_target_x = random.uniform(-45, 45)
             new_target_y = random.uniform(-25, 25)
             robot.eye_target_x = new_target_x
             robot.eye_target_y = new_target_y
             robot.look_timer = now
+            robot.next_look = now + random.uniform(3, 8)
     
     # ---- YAWN ----
-    if now - robot.yawn_timer > random.uniform(45, 90):
+    if now >= robot.next_yawn:
         robot.emotion = "YAWN"
         robot.yawn_timer = now
+        robot.next_yawn = now + random.uniform(45, 90)
         def reset_emotion():
             time.sleep(2)
             if robot.emotion == "YAWN":
@@ -512,15 +539,17 @@ while running:
                 speak_text("Hee heee!")
 
         if event.type == pygame.KEYDOWN:
-            wake_up()
-            
+            wake_up(speak=(event.key != pygame.K_SPACE))  # don't greet over the mic
+
             if event.key == pygame.K_ESCAPE:
                 running = False
-            
-            if event.key == pygame.K_SPACE and not robot.is_listening:
+
+            if event.key == pygame.K_SPACE and not robot.is_listening and not robot.is_speaking:
                 robot.is_listening = True
                 robot.emotion = "LISTENING"
                 robot.last_activity = time.time()
+                ptt_held.set()   # worker records for as long as this stays set
+                threading.Thread(target=push_to_talk_worker, daemon=True).start()
                 print("🎤 Holding Space...")
             
             if event.key == pygame.K_h:
@@ -555,12 +584,10 @@ while running:
                     speak_text("I don't know anything about you yet. Tell me your name or something about yourself!")
         
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE and robot.is_listening:
-                wake_up()
-                robot.is_listening = False
+            if event.key == pygame.K_SPACE and ptt_held.is_set():
+                ptt_held.clear()   # tells the worker to stop recording and process
                 robot.last_activity = time.time()
                 print("🛑 Processing...")
-                threading.Thread(target=listen_and_process, daemon=True).start()
     
     # ---- Click timeout ----
     if robot.clicked and time.time() - robot.click_timer > 2.0:
