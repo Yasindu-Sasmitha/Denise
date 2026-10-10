@@ -7,6 +7,7 @@ import edge_tts
 import tempfile
 import os
 import threading
+import queue
 import json
 import requests
 import re
@@ -75,6 +76,7 @@ class RobotState:
         self.sleep_timer = time.time()
 
 robot = RobotState()
+ptt_held = threading.Event()   # set while Space is physically held down (mic open)
 # ===== MEMORY SYSTEM =====
 conversation_history = []  # Stores last 10 exchanges
 user_facts = {}           # Stores facts about the user
@@ -142,42 +144,75 @@ def wake_up(speak=True):
         robot.next_yawn = time.time() + random.uniform(45, 90)  # no instant yawn after waking
         print("Robot woke up!")
         if speak:
-            speak_text("Oh! Hey there! I was sleeping.")
+            speak_text("Oh! Hey there! I was sleeping.", droppable=True)
 
-# --- Voice Engine ---
-def speak_text(text):
-    if robot.is_speaking:
-        return
-    def _speak():
-        robot.is_speaking = True
-        robot.is_listening = True
-        robot.emotion = "SPEAKING"
+# --- Voice Engine (speech queue) ---
+# Every line goes into one queue and ONE speaker thread says them in order, so replies,
+# reminders and giggles can never talk over each other or get silently dropped.
+speech_queue = queue.Queue()
+speech_lock = threading.Lock()   # keeps robot.is_speaking consistent with the queue
+
+def speak_text(text, droppable=False):
+    """Queue a line for Denise to say. Returns True if queued, False if skipped.
+
+    droppable=False (default): replies, reminders, memory answers - ALWAYS queued, never lost.
+    droppable=True: cosmetic one-liners (giggle, wake-up greeting) - skipped if she is already
+    busy, so mashing right-click doesn't build a backlog of "Hee heee!"
+    """
+    with speech_lock:
+        if droppable and robot.is_speaking:
+            return False
+        speech_queue.put(text)
+        robot.is_speaking = True   # "busy" = something is queued or playing
+    return True
+
+def _speech_worker():
+    while True:
+        text = speech_queue.get()
+        tmp_path = None
         try:
+            # Hold the line while the mic is recording so she doesn't talk into it
+            while ptt_held.is_set():
+                time.sleep(0.05)
+
+            robot.emotion = "SPEAKING"
             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
                 tmp_path = tmp.name
+
             async def generate():
                 communicate = edge_tts.Communicate(text, "en-AU-NatashaNeural", pitch="+25Hz")
                 await communicate.save(tmp_path)
+
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            loop.run_until_complete(generate())
-            loop.close()
+            try:
+                loop.run_until_complete(generate())
+            finally:
+                loop.close()
+
             pygame.mixer.music.load(tmp_path)
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
                 robot.mouth_open = 0.4 + 0.6 * abs(math.sin(time.time() * 8))
                 time.sleep(0.05)
             pygame.mixer.music.unload()
-            time.sleep(0.1)
-            os.unlink(tmp_path)
         except Exception as e:
-            print(f"TTS Error: {e}")
+            print(f"TTS Error: {e}")   # one failed line must not kill the speaker thread
         finally:
-            robot.is_speaking = False
-            robot.is_listening = False
+            if tmp_path:
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
             robot.mouth_open = 0.0
-            robot.emotion = "IDLE"
-    threading.Thread(target=_speak, daemon=True).start()
+            with speech_lock:
+                if speech_queue.empty():
+                    robot.is_speaking = False
+                    if robot.emotion == "SPEAKING":
+                        robot.emotion = "IDLE"
+            speech_queue.task_done()
+
+threading.Thread(target=_speech_worker, daemon=True).start()
 
 # --- AI Brain: Gemini ---
 def get_gemini_response(prompt):
@@ -279,7 +314,6 @@ You are Denise. Make every interaction feel like talking to a real friend."""
         return None
     
 # --- Microphone (true hold-to-talk) ---
-ptt_held = threading.Event()   # set while Space is physically held down
 MAX_RECORD_SECONDS = 15        # safety net, e.g. if the window loses focus and KEYUP never arrives
 MIN_RECORD_SECONDS = 0.4       # ignore accidental taps
 
@@ -314,6 +348,12 @@ def handle_user_text(user_text):
         reply = f"You said: {user_text}. I'm your cute robot!"
     speak_text(reply)
 
+def finish_listening():
+    """Mic session is over. Don't touch the face if she is busy talking."""
+    robot.is_listening = False
+    if not robot.is_speaking:
+        robot.emotion = "IDLE"
+
 def push_to_talk_worker():
     """Starts on Space KEYDOWN: records while Space is held, stops on KEYUP, then processes.
     The main loop has already set robot.is_listening = True before starting this thread."""
@@ -321,8 +361,7 @@ def push_to_talk_worker():
         import speech_recognition as sr
     except ImportError:
         print("❌ SpeechRecognition not installed.")
-        robot.is_listening = False
-        robot.emotion = "IDLE"
+        finish_listening()
         return
 
     try:
@@ -338,23 +377,21 @@ def push_to_talk_worker():
         raw = b"".join(frames)
         if len(raw) / (sample_rate * sample_width) < MIN_RECORD_SECONDS:
             print("⏱️ Too short - hold Space while you talk.")
-            robot.emotion = "IDLE"
-            robot.is_listening = False
+            finish_listening()
             return
 
         robot.emotion = "THINKING"
         print("📝 Transcribing...")
         audio = sr.AudioData(raw, sample_rate, sample_width)
         user_text = sr.Recognizer().recognize_google(audio)
-        handle_user_text(user_text)   # speak_text() resets is_listening/emotion when done
+        handle_user_text(user_text)   # queues her reply; the speaker thread takes it from here
+        robot.is_listening = False    # mic session done (emotion is now owned by the speaker)
     except sr.UnknownValueError:
         print("🤷 Could not understand audio.")
-        robot.emotion = "IDLE"
-        robot.is_listening = False
+        finish_listening()
     except Exception as e:
         print(f"🎤 Error: {e}")
-        robot.is_listening = False
-        robot.emotion = "IDLE"
+        finish_listening()
 
 # --- Drawing Function ---
 def draw_face(screen, robot):
@@ -536,7 +573,7 @@ while running:
                 robot.click_timer = time.time()
                 robot.click_emotion = robot.emotion
                 print("Robot clicked!")
-                speak_text("Hee heee!")
+                speak_text("Hee heee!", droppable=True)
 
         if event.type == pygame.KEYDOWN:
             wake_up(speak=(event.key != pygame.K_SPACE))  # don't greet over the mic
@@ -579,9 +616,9 @@ while running:
             if event.key == pygame.K_r:
                 if user_facts:
                     facts = ", ".join([f"{k}: {v}" for k, v in user_facts.items()])
-                    speak_text(f"I remember! {facts}")
+                    speak_text(f"I remember! {facts}", droppable=True)
                 else:
-                    speak_text("I don't know anything about you yet. Tell me your name or something about yourself!")
+                    speak_text("I don't know anything about you yet. Tell me your name or something about yourself!", droppable=True)
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE and ptt_held.is_set():
