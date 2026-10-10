@@ -1,0 +1,10 @@
+pygame
+SpeechRecognition
+pyaudio
+edge-tts
+requests
+google-genai
+python-dotenv>=1.0.0
+
+# Optional: lets "play <something> on YouTube" open the top video without a YouTube API key.
+# yt-dlp
