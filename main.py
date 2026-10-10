@@ -240,7 +240,7 @@ You are Denise. Make every interaction feel like talking to a real friend."""
         full_prompt = f"{system_prompt}\n\nUser: {prompt}"
         
         response = client.models.generate_content(
-            model='models/gemini-3.1-flash-lite-preview',
+            model='gemini-3.1-flash-lite',
             contents=full_prompt
         )
         
@@ -292,7 +292,7 @@ def listen_and_process():
         user_text = recognizer.recognize_google(audio)
                 # --- Check for reminder commands ---
         
-        reminder_match = re.search(r'remind me to (.+?) in (\d+) minute?', user_text.lower())
+        reminder_match = re.search(r'remind me to (.+?) in (\d+) minutes?\b', user_text.lower())
         if reminder_match:
             task = reminder_match.group(1)
             minutes = int(reminder_match.group(2))
@@ -488,6 +488,7 @@ def check_reminders():
         print(f"⏰ Reminder: {msg}")
         speak_text(f"Reminder: {msg}")
 
+next_reminder_check = time.monotonic() + 1.0
 # --- Main Loop ---
 running = True
 while running:
@@ -586,8 +587,10 @@ while running:
                 robot.sleep_timer = time.time()
     
     # ---- Reminders ----
-    if int(time.time()) % 1 == 0:
+    now = time.monotonic()
+    if now >= next_reminder_check:
         check_reminders()
+        next_reminder_check = now + 1.0
     
     # ---- Draw ----
     draw_face(screen, robot)

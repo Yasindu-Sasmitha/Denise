@@ -2,6 +2,7 @@ pygame
 SpeechRecognition
 pyaudio
 edge-tts
+google-genai
 asyncio
 requests
 python-dotenv>=1.0.0
